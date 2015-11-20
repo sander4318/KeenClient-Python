@@ -11,10 +11,10 @@ class SavedQueriesInterface:
     def all(self):
         """
         Gets all saved queries for a project from the Keen IO API.
-        Read or Master key must be set.
+        Master key must be set.
         """
         keen_api = KeenApi(self.project_id, master_key=self.master_key)
-        self._check_for_master_or_read_key()
+        self._check_for_master_key()
         url = "{0}/{1}/projects/{2}/queries/saved".format(
             keen_api.base_url, keen_api.api_version, self.project_id
         )
@@ -26,10 +26,10 @@ class SavedQueriesInterface:
         """
         Gets a single saved query for a project from the Keen IO API given a
         query name.
-        Read or Master key must be set.
+        Master key must be set.
         """
         keen_api = KeenApi(self.project_id, master_key=self.master_key)
-        self._check_for_master_or_read_key()
+        self._check_for_master_key()
         url = "{0}/{1}/projects/{2}/queries/saved/{3}".format(
             keen_api.base_url, keen_api.api_version, self.project_id, query_name
         )
@@ -49,7 +49,8 @@ class SavedQueriesInterface:
         url = "{0}/{1}/projects/{2}/queries/saved/{3}/result".format(
             keen_api.base_url, keen_api.api_version, self.project_id, query_name
         )
-        response = keen_api.fulfill("get", url, headers=self._headers())
+        key = self.master_key if self.master_key else self.read_key
+        response = keen_api.fulfill("get", url, headers={"Authorization": key })
         keen_api._error_handling(response)
 
         return response.json()
